@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>My Stack Notes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.js"></script>
+</head>
+<body class="bg-gray-50 flex h-screen">
+    <!-- 左側導覽列 -->
+    <aside class="w-72 bg-white border-r p-6 overflow-y-auto">
+        <h1 class="text-xl font-bold mb-4">📚 我的筆記</h1>
+        <nav id="nav-list" class="space-y-2"></nav>
+    </aside>
+    <!-- 右側文章內容 -->
+    <main class="flex-1 p-10 overflow-y-auto bg-white">
+        <article id="content-area" class="prose max-w-2xl mx-auto text-gray-800"></article>
+    </main>
+
+    <script>
+        async function init() {
+            const res = await fetch('./content/index.json');
+            const posts = await res.json();
+            const navList = document.getElementById('nav-list');
+            
+            posts.forEach((post, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left px-3 py-2 rounded hover:bg-gray-100 font-medium';
+                btn.innerText = post.title;
+                btn.onclick = () => loadPost(post.id, btn);
+                navList.appendChild(btn);
+                if(i === 0) loadPost(post.id, btn);
+            });
+        }
+        async function loadPost(id, btn) {
+            const res = await fetch(`./content/${id}.md`);
+            const text = await res.text();
+            document.getElementById('content-area').innerHTML = marked.parse(text);
+        }
+        init();
+    </script>
+</body>
+</html>
